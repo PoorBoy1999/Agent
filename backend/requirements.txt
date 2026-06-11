@@ -1,0 +1,15 @@
+# 后端依赖 - Python 3.14 兼容版本
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+websockets>=12.0
+pydantic>=2.6.0
+langgraph>=0.2.0
+langchain>=0.2.0
+langchain-core>=0.2.0
+langchain-openai>=0.2.0
+httpx>=0.27.0
+pywin32>=306; sys_platform == "win32"
+sse-starlette>=2.0.0
+# 浏览器工具依赖
+playwright>=1.40.0
+nest_asyncio>=1.5.0
