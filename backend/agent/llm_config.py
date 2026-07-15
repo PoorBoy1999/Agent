@@ -36,6 +36,31 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
+
+def _get_env_api_key(name, default=None, aliases=None):
+    """
+    从环境变量读取 API Key。
+    - OLLAMA_API_KEY：本地 Ollama 模型（默认 "ollama")
+    - DASHSCOPE_API_KEY：DashScope / qwen-plus 云端 API
+    - aliases：备用环境变量名列表
+    """
+    value = os.getenv(name)
+    if not value and aliases:
+        for alias in aliases:
+            value = os.getenv(alias)
+            if value:
+                print(f"[LLM Config] 使用备用环境变量 {alias} 作为 {name}")
+                break
+    if value is None:
+        value = default
+    if value is None:
+        print(f"[LLM Config] Warning: 环境变量 {name} 未设置")
+    return value
+
+
+OLLAMA_API_KEY = _get_env_api_key("OLLAMA_API_KEY", "ollama")
+DASHSCOPE_API_KEY = _get_env_api_key("DASHSCOPE_API_KEY", aliases=["OPENAI_API_KEY"])
+
 # ============================================================================
 # 配置选项：选择使用本地模型还是云端 API
 # ============================================================================
@@ -45,7 +70,7 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 # 本地模型配置 - Ollama（用于 Router 和工具调用）
 LOCAL_MODEL_CONFIG = {
     "model": "qwen2.5:7b",  # Ollama 模型名称
-    "api_key": "ollama",  # Ollama 不需要真正的 key
+    "api_key": OLLAMA_API_KEY,
     "base_url": "http://localhost:11434/v1",  # Ollama 服务地址
     "temperature": 0.7,
     "max_tokens": 81920,
@@ -54,9 +79,9 @@ LOCAL_MODEL_CONFIG = {
 
 # 云端 API 配置（用于 Planner 和其余地方）
 CLOUD_MODEL_CONFIG = {
-    "model": "qwen-plus",  # 通义千问模型
-    "api_key": "sk-431b6b8e41714305972b956749b48fc6",  # API Key
-    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "model": "deepseek-v4-flash",  # 通义千问模型
+    "api_key": DASHSCOPE_API_KEY,
+    "base_url": "https://api.deepseek.com",
     "temperature": 0,
     "timeout": 60,  # 请求超时（秒）
 }
@@ -66,7 +91,7 @@ CLOUD_MODEL_CONFIG = {
 # ============================================================================
 ROUTER_MODEL_CONFIG = {
     "model": "qwen2.5:7b",
-    "api_key": "ollama",
+    "api_key": OLLAMA_API_KEY,
     "base_url": "http://localhost:11434/v1",
     "temperature": 0.3,
     "max_tokens": 2048,
@@ -77,9 +102,9 @@ ROUTER_MODEL_CONFIG = {
 # Planner 专用 LLM（使用云端 API）
 # ============================================================================
 PLANNER_MODEL_CONFIG = {
-    "model": "qwen-plus",
-    "api_key": "sk-431b6b8e41714305972b956749b48fc6",
-    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "model": "deepseek-v4-flash",
+    "api_key": DASHSCOPE_API_KEY,
+    "base_url": "https://api.deepseek.com",
     "temperature": 0.7,
     "max_tokens": 8192,
     "timeout": 60,
@@ -155,6 +180,10 @@ def create_llm(config: dict = None) -> ChatOpenAI:
     """创建 LLM 实例"""
     if config is None:
         config = get_active_llm_config()
+    if not config.get("api_key"):
+        raise RuntimeError(
+            "LLM 配置中缺少 api_key。请检查环境变量是否正确设置。"
+        )
     return ChatOpenAI(**config)
 
 
@@ -165,6 +194,11 @@ def get_llm() -> ChatOpenAI:
     global _cached_llm
     if _cached_llm is None:
         config = CLOUD_MODEL_CONFIG
+        if not config.get("api_key"):
+            raise RuntimeError(
+                "DASHSCOPE_API_KEY 或 OPENAI_API_KEY 必须设置为 cloud model 的 API Key。"
+                " 请检查环境变量。"
+            )
         _cached_llm = ChatOpenAI(**config)
         print(f"[LLM] 主 LLM 已初始化，使用云端 API: {config.get('model')}")
     return _cached_llm
@@ -194,6 +228,11 @@ def get_planner_llm() -> ChatOpenAI:
 
     if _cached_planner_llm is None:
         config = PLANNER_MODEL_CONFIG
+        if not config.get("api_key"):
+            raise RuntimeError(
+                "DASHSCOPE_API_KEY 或 OPENAI_API_KEY 必须设置为 Planner LLM 的 API Key。"
+                " 请检查环境变量。"
+            )
         print(f"[LLM] Planner LLM 使用云端 API: {config.get('model')}")
         _cached_planner_llm = ChatOpenAI(**config)
 

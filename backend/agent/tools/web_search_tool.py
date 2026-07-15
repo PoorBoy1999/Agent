@@ -91,16 +91,18 @@ class WebSearchTool(BaseTool):
 
         # 方法1: 使用 DashScope 的搜索 API
         try:
-            api_key = "sk-431b6b8e41714305972b956749b48fc6"
-            url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
-            
+            import os
+            api_key = os.getenv("DASHSCOPE_API_KEY")
+            if not api_key:
+                raise RuntimeError("Missing DASHSCOPE_API_KEY environment variable")
+            url = "https://api.deepseek.com"
             headers = {
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json"
             }
             
             data = {
-                "model": "qwen-plus",
+                "model": "deepseek-v4-flash",
                 "messages": [
                     {"role": "user", "content": f"请搜索以下关键词，返回5个最相关的网页链接（包含标题和URL）：{search_term}"}
                 ],

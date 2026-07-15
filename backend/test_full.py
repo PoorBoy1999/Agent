@@ -1,6 +1,7 @@
 """
 完整测试 Agent 流程
 """
+import os
 import sys
 sys.path.insert(0, '.')
 
@@ -12,7 +13,7 @@ from langchain_core.messages import HumanMessage
 # 使用和 agent.py 相同的配置
 llm = ChatOpenAI(
     model="qwen3.5-plus",
-    api_key="sk-431b6b8e41714305972b956749b48fc6",
+    api_key=os.getenv("DASHSCOPE_API_KEY"),
     base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
     temperature=0,
 )

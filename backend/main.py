@@ -587,7 +587,7 @@ async def websocket_chat(websocket: WebSocket):
                     print(f"[PLANNER] execution_plan: {result.get('execution_plan') is not None}")
                     
                     # 从执行计划中提取工具结果并保存到缓存
-                    execution_plan = result.get("execution_plan", {})
+                    execution_plan = result.get("execution_plan") or {}
                     task_dag = execution_plan.get("task_dag", {})
                     new_tool_results = {}
                     for task_id, task_data in task_dag.items():
@@ -602,7 +602,7 @@ async def websocket_chat(websocket: WebSocket):
                     _tool_result_cache[session_id] = {**cached_tool_results, **new_tool_results}
                     
                     # 保存会话状态
-                    if result.get("execution_plan"):
+                    if result.get("execution_plan") or result.get("error"):
                         planner_session_state = {
                             "messages": history + [{"role": "user", "content": message}],
                             "user_input": message,

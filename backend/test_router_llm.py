@@ -1,4 +1,5 @@
 """Router LLM 超时诊断脚本"""
+import os
 import time
 import threading
 import sys
@@ -10,7 +11,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 # Router LLM 配置
 ROUTER_MODEL_CONFIG = {
     "model": "qwen2.5:7b",
-    "api_key": "ollama",
+    "api_key": os.getenv("OLLAMA_API_KEY", "ollama"),
     "base_url": "http://localhost:11434/v1",
     "temperature": 0.3,
     "max_tokens": 2048,

@@ -15,18 +15,34 @@ agent/
 
 ## 重要配置
 
-### 1. 配置通义千问 API Key
+### 1. 配置环境变量
 
-编辑 `backend/agent/llm_config.py`，将 `api_key` 替换为你的 API Key：
+本项目已改为从环境变量读取 API Key。请按照下面设置：
 
-```python
-LLM_CONFIG = {
-    "model": "qwen3.5-plus",  # 或其他模型
-    "api_key": "sk-xxxxxxxxxxxx",  # ← 替换这里
-    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-    "temperature": 0,
-}
+- `DASHSCOPE_API_KEY`：用于 qwen-plus / DashScope 云端 API
+- `OLLAMA_API_KEY`：用于本地 Ollama（可选，默认值 `ollama`）
+
+Windows PowerShell（当前会话）：
+```powershell
+$env:DASHSCOPE_API_KEY="sk-xxxxxxxxxxxx"
+$env:OLLAMA_API_KEY="ollama"
 ```
+
+Windows CMD（当前终端生效）：
+```cmd
+set DASHSCOPE_API_KEY=sk-xxxxxxxxxxxx
+set OLLAMA_API_KEY=ollama
+```
+
+Windows CMD（永久生效，重启终端后生效）：
+```cmd
+setx DASHSCOPE_API_KEY "sk-xxxxxxxxxxxx"
+setx OLLAMA_API_KEY "ollama"
+```
+
+现在无需直接修改 `backend/agent/llm_config.py` 来设置 API Key。
+
+> 如果运行时出现 “Sync client is not available” 或者 Planner 调用失败，请先确认 `DASHSCOPE_API_KEY` 已正确设置（也支持 `OPENAI_API_KEY` 作为备用变量）。
 
 ## 快速启动
 
