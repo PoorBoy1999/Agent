@@ -1,3 +1,9 @@
+# 运行展示
+<img width="1092" height="1012" alt="屏幕截图 2026-07-14 154948" src="https://github.com/user-attachments/assets/2ab320b0-8606-4c0f-8bbf-6b06e74b4517" />
+
+<img width="1088" height="1289" alt="屏幕截图 2026-07-14 154651" src="https://github.com/user-attachments/assets/529a564c-70df-4373-bacf-88b2a1a19958" />
+
+
 # Agent 项目根目录
 
 ```
